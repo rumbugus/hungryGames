@@ -1,0 +1,156 @@
+{% extends 'mysessions/base.html' %}
+{% load static %}
+{% block body%}
+<head>
+  <title>Place searches</title>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+
+  <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans|Roboto" rel="stylesheet">
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> 
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <script async defer type="text/javascript" src='{% static "javascript/loadselected.js"%}'></script>
+
+  <script async defer type="text/javascript" src='{% static "javascript/srchplaces.js"%}'></script>
+<link rel="stylesheet" href="{% static 'style/mystyle.css' %}">
+
+  <style>
+      /* Always set the map height explicitly to define the size of the div
+      * element that contains the map. */
+      #map {
+        height: 400px;
+        width:600px;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+
+      #mapModal{
+        height: 400px;
+        width:600px;
+      }
+      </style>
+
+
+
+
+    </head>
+
+    <a href='/sessions/'><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;back to list</a>
+
+    <div id='main-container' class='container'> 
+      <div class='row'>
+        <div class='col-xs-1'>
+          <h3 class='session-title'>{{ session_descr }}</h3>
+        </div>
+        <div class='col-xs-9'></div>
+
+        <div class='col-xs-2'>
+          <p> {{ session_time }}</p>
+        </div>
+      </div>
+
+      <div id="tabs">
+        <ul>
+          <li><a href="#tabs-1">1 - Add places</a></li>
+          <li><a href="#tabs-2">2 - Vote!</a></li>
+        </ul>
+        <div id="tabs-1">
+          <div id='containerSrchResults'  class='row' style='background-color:#f9f9f9'>
+
+            <h3 class='search-title'>Add a place, any place *</h3>
+            <h5 style='text-align:right'> ...or proceed to voting page</h5>
+
+            <p class='p-rad'> Maximum <span><input type='number' id='radius' value='10' min='1'></input></span> minutes away</p>
+
+            <div id='results-list-container' class='col-xs-5'>
+              <form action="" method="POST">
+                {% csrf_token %}
+                <ul id='srchResultsList'></ul>
+              </form>
+            </div>
+            <div id='map-container' class='col-xs-7'>
+              <div id='map'></div>
+            </div>
+          </div>
+
+        </div>
+
+
+        <div id="tabs-2">
+          <div id='containerSelectedPlaces' style='background-color:#f9f9f9' class='row'>
+            <h3>Vote: </h3>
+            <div class='col-xs-2'></div>
+            <div id='selected-places' class='col-xs-8'>
+
+              <ul id='selectedPlacesList'></ul>
+            </div>
+            <div class='col-xs-2'></div>
+          </div>
+
+        </div>
+      </div>
+
+
+
+
+
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog" class='modal'>
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Modal Header</h4>
+          </div>
+          <div class="modal-body">
+
+            <div id='modal-container' class='container'>
+              <div class='row'>
+                <div id='modal-details' class='col-xs-5'>
+                  <p>Some text in the modal.</p>
+                </div>
+                <div id='mapModal' class='col-xs-7'>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwqnVFsADdJoWol_2AFBWQKT_ZFmUKvmg&libraries=places&callback=initMap" async defer></script>
+
+
+
+
+
+  </html>
+  {% endblock %}
+

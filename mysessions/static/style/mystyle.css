@@ -1,0 +1,95 @@
+.align-right{
+    float: right;
+}
+
+
+
+.place-list-item{
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    font:bold;
+    max-width:500px;
+    position: relative;
+    display: block;
+    padding: .4em .4em .4em .6em;
+    *padding: .4em;
+    border-top:solid white;
+    background: #bbceb5;
+    color: #444;
+    text-decoration: none;
+    border-radius: .3em;
+    transition: all .3s ease-out;   
+}
+
+.place-list-item:hover{
+    background: #eee;
+}
+
+.srch-list-itm{
+    max-width:500px;
+    position: relative;
+    display: block;
+    padding: .4em .4em .4em .4em;
+    *padding: .4em;
+    border-top:solid white;
+    background:     #5cacee;
+    color: #444;
+    text-decoration: none;
+    border-radius: .3em;
+    transition: all .3s ease-out;   
+}
+
+.srch-list-itm:hover{
+    background: #ffa500;
+}
+
+
+#containerSelectedPlaces, #containerSrchResults{
+    padding-bottom: 40px;
+}
+
+
+
+#radius{
+    max-width:35px;
+    padding:0px;
+}
+
+#results-list-container{
+    overflow: auto;
+    max-height: 400px;
+}
+
+#map-container{
+
+
+}
+
+.col-xs-6{
+    border:black solid;
+}
+
+.search-title{
+    text-align: center;
+}
+
+
+.place-list-votes{
+    margin-left: 5px;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+
+.glyphicon{
+    margin: 4px;
+}
+
+.added{
+    background-color: #00c78c;
+}
+
+
+.p-rad{
+    margin-left: 10px;
+}

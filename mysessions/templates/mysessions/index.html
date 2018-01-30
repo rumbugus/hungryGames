@@ -1,0 +1,15 @@
+{% extends 'mysessions/base.html' %}
+
+
+{% block body%}
+{% if sessions %}
+<ul> 
+	{% for session in sessions%}
+	<li><a href="{% url 'mysessions:session' session.id %}"> {{ session.session_description }} </a></li>
+	{% endfor %}
+</ul>
+{% else %}
+	<h3> No sesions found</h3>
+{% endif %}
+
+{% endblock %}

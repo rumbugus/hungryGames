@@ -1,0 +1,320 @@
+{% extends 'mysessions/base.html' %}
+{% load static %}
+{% block body%}
+<head>
+    <title>Place searches</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+<link rel="stylesheet" href="{% static 'style/mystyle.css' %}">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script >
+
+
+
+    var map;
+    var infowindow;
+
+    var srchRadius = 830;
+    var timeout = null;
+
+    function initMap(){
+
+        getPos = function () {
+         //   var srchRadius= document.getElementById('rad').value*83;
+            console.log("getPos function called");
+            navigator.geolocation.getCurrentPosition(function (position) {
+                console.log("Successfully retrieved position: ", position);
+                var coords = position.coords;
+
+                var pyrmont = {
+                  lat: coords.latitude, lng:  coords.longitude};
+
+                map = new google.maps.Map(document.getElementById('map'), {
+                  center: pyrmont,
+                  zoom: 15
+                });
+
+                infowindow = new google.maps.InfoWindow();
+                var service = new google.maps.places.PlacesService(map);
+              //  console.log(srchRadius.value);
+                service.nearbySearch({
+                  location: pyrmont,
+                  radius: srchRadius,
+                  type: ['restaurant']
+                }, callback);
+              
+            }, function (error) {
+                console.log("Something went wrong retrieving position: ", error);
+                setTimeout(getPos, 5000);
+            });
+        }
+        getPos();
+      }
+
+
+      function callback(results, status) {
+
+          console.log("updating search results");
+          $('#srchResultsList').children().remove();
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            //remove all search results 
+          
+
+          for (var i = 0; i < results.length; i++) {
+             
+            createMarker(results[i]);
+            var place = results[i];
+            console.log(place.place_id);
+
+            ///if place in the seachr results list, or in the top list , do not add it
+            if(document.getElementById(place.place_id) == null){
+
+            $('#srchResultsList').append("<li class='srch-list-itm' id='"+results[i].place_id+"'>"+results[i].name+
+              "&nbsp;&nbsp;<a class='add-button' href='#'><span class='glyphicon glyphicon-plus-sign' aria-hidden='true'></span>&nbsp;</a>"+
+              "&nbsp;<a href='#' class='flag-button'><span class='glyphicon glyphicon-flag'></span></a>"+
+              "&nbsp;<a href='#' class='flag-button'><span class='glyphicon glyphicon-info-sign' data-toggle='modal' data-target='#myModal'></span></a></li>");
+            }
+          }
+        }
+      }
+
+      function createMarker(place) {
+        var marker = null;
+
+        var placeLoc = place.geometry.location;
+        var marker = new google.maps.Marker({
+          map: map,
+          position: place.geometry.location
+        });
+
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.setContent(place.name);
+          infowindow.open(map, this);
+        });
+      }
+
+
+
+    $(document).on('keyup mouseup', '#radius',function(e){
+    clearTimeout(timeout);
+    timeout = setTimeout(function () {
+        $('#test').text($('#radius').val());
+        var rad = $('#radius').val();
+        srchRadius = $('#radius').val()*83;
+        initMap();
+
+    }, 1000);
+    });
+
+  
+     
+      
+      $(document).on('click', '.add-button', function(e){
+          e.preventDefault();
+          var id = $(this).id;
+
+          $.ajax({
+            type: 'POST',
+            url: 'add/',
+            data:{
+              place_id: $(this).parent().attr('id'),
+              place_name: $(this).parent().text(),
+              csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(){
+                console.log("place added");
+            }
+          })
+      });
+
+
+      $(document).on('click', '.minus-button', function(e){
+          e.preventDefault();
+          var id = $(this).id;
+
+          $.ajax({
+            type: 'POST',
+            url: 'down/',
+            data:{
+              place_id: $(this).parent().attr('id'),
+              csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(){
+                console.log("place added");
+            }
+          })
+      });
+
+      function getSelectedList(){
+        $('.ajaxProgress').show();
+        $.ajax({
+          type: "GET",
+          url: 'getSelectedList/',
+          dataType: "json",
+          async: true,
+          data: {csrfmiddlewaretoken: '{{ csrf_token}}'},
+          success: function (json){ 
+              ///check if the div contains an element with this id. If yes, check if the nbr of votes is the same. If not update the nbr. 
+              ///If not append  
+
+                for(i = 0; i<json.message.length; i++){
+                  var placeVotes = json.message[i][2];
+                  var placeName= json.message[i][0];
+                  var placeID = json.message[i][1];
+
+                  var elementInDOM = document.getElementById(placeID);
+                    console.log("--------"+elementInDOM);
+
+                    //check the parent element of placeID, if srchResultsList remove 
+                  if($(elementInDOM).parent().attr('id') == 'srchResultsList'){
+                    $(elementInDOM).remove();
+                  }
+
+
+                  if(elementInDOM == null){
+                    console.log("adding new place"+placeName);
+                    const listElement = document.createElement("li");
+                    listElement.id = placeID;
+                    listElement.classList.add('place-list-item');
+                    
+                    const votesDisplay = document.createElement("span");
+                    votesDisplay.id = placeID+"votes";
+                    votesDisplay.classList.add('place-list-votes', 'align-right');
+                    const content = document.createTextNode(placeVotes);
+                    votesDisplay.appendChild(content);
+
+                    const placeNameNode = document.createTextNode(placeName);
+
+                    listElement.appendChild(placeNameNode);
+                    listElement.appendChild(votesDisplay);
+                    $(listElement).append("&nbsp;<a class='add-button align-right' href='#'><span class='glyphicon glyphicon-thumbs-up' aria-hidden='false'></span>&nbsp;</a>&nbsp;"+
+                      "<a class='minus-button align-right' href='#'><span class='glyphicon glyphicon-thumbs-down' aria-hidden='true'></span>&nbsp;</a>");
+
+                    $('#selectedPlacesList').append(listElement);
+
+                }else{
+                  var displayedVotes = document.getElementById(placeID+"votes");
+                  console.log($(displayedVotes).text());
+                  if ($(displayedVotes).text() != placeVotes){
+                    console.log($(displayedVotes).text()+placeVotes+"updating" +i);
+                    $(displayedVotes).text(placeVotes) ;
+                  }
+                }       
+              }
+          }
+        });
+      }
+
+          
+
+      getSelectedList();
+      var myVar = setInterval(function(){getSelectedList()}, 1000);
+
+
+
+
+    var placeLinks= function(place){
+      var place_id = place.place_id;
+
+      const span = document.createElement("span");
+
+      const infobutton =document.createElement('button');
+      inforbutton.classList.add('info-button glyphicon glyphicon-info-sign');
+
+      const content = document.createTextNode(placeVotes);
+
+
+      listElement.appendChild(placeNameNode);
+      listElement.appendChild(votesDisplay);
+
+    };
+
+
+
+
+
+    </script>
+
+      <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 500px;
+        width:500px;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+
+
+
+
+</head>
+
+<a href='/sessions/'>
+<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;back to list
+</a>
+<div id='containerSelectedPlaces' style='border:solid black'>
+<h3>Selected places</h3>
+<h4>{{ session_descr }}</h4>
+<p id='test'>time remaining</p>
+  <ul id='selectedPlacesList'></ul>
+</div>
+
+
+
+
+<div id='containerSrchResults' style='border:solid black'>
+<h4>Pick a place, any place:</h4>
+
+<p> Maximum <span><input type='number' id='radius' value='10' min='1'></input></span> minutes away</p>
+
+
+
+<form action="" method="POST">
+  {% csrf_token %}
+  <ul id='srchResultsList'></ul>
+</form>
+
+    
+</div>
+
+
+<!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Modal Header</h4>
+        </div>
+        <div class="modal-body">
+          <p>Some text in the modal.</p>
+          <div id='placeDetails'>
+            <div id='map'></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+</div>
+
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwqnVFsADdJoWol_2AFBWQKT_ZFmUKvmg&libraries=places&callback=initMap" async defer></script>
+
+</html>
+{% endblock %}
+
