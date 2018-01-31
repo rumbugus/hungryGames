@@ -6,7 +6,19 @@ var arrSelectedPlaces =[];
   } );
 
 
+  function isIdInArray(array, item) {
+          for (var i = 0; i < array.length; i++) {
+            //if id in array => true
+            if (array[i][0] == item) {
+              return true; 
+            }
+          }
+          return false; 
+        }
+
+
 function getSelectedList(){
+
 	$('.ajaxProgress').show();
 	$.ajax({
 		type: "GET",
@@ -24,21 +36,12 @@ function getSelectedList(){
               	var placeID = json.message[i][1];
 
                 ///if place not in array, push it into array
-                if(arrSelectedPlaces.indexOf(placeID) == -1){
-                	var arrTemp = [placeID, placeName];
-                	arrSelectedPlaces.push(arrTemp);
-                }
-
-                var elementInDOM = document.getElementById(placeID);
-                console.log("--------"+elementInDOM);
-
-                    //check the parent element of placeID, if srchResultsList change class to 'added'
-                    if($(elementInDOM).parent().attr('id') == 'srchResultsList'){
-                    	$(elementInDOM).addClass('added');
-                    }
 
 
-                    if(elementInDOM == null){
+                if(isIdInArray(arrSelectedPlaces, placeID) == false){
+                  var arrTemp = [placeID, placeName];
+                  arrSelectedPlaces.push(arrTemp);
+
                     	console.log("adding new place"+placeName);
                     	const listElement = document.createElement("li");
                     	$(listElement).append(

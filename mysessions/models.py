@@ -18,33 +18,52 @@ class SelectedPlace(models.Model):
 
 
 	def upvote(self, user, session_id):
-		try:
-			session = Session.objects.get(id=session_id)
-			self.place_votes.create(user=user, place=self, session= session, vote_type="up")
+		session = Session.objects.get(id = session_id)
+		count_vote = Vote.objects.filter(user = user, session=session, place=self).count()
+
+
+		if(count_vote == 0):
+			self.place_votes.create(user=user, place=self, session= session, vote_value="up")
 			self.nbr_votes += 1
-			self.save()                
-		except IntegrityError:
-			print('already upvoted')
-			return 'already_upvoted'
-		return 'ok'
+			self.save()               
+			return 'vote added'
+		else:
+			users_vote = Vote.objects.get(user=user, place=self, session= session)
+			if (users_vote.vote_value == 'up'):
+				print("already upvoted")
+			else:
+				self.nbr_votes += 2
+				self.save()
+				users_vote.vote_value = 'up'
+				users_vote.save()
+
+
 
 	def downvote(self, user, session_id):
-		try:
-			session = Session.objects.get(id=session_id)
-			self.place_votes.create(user=user, place=self, session=session, vote_type="down")
-			self.nbr_votes -= 1
-			self.save()                
-		except IntegrityError:
-			print('already downvoted')
-			return 'already_downvoted'
-		return 'ok'    
+		session = Session.objects.get(id = session_id)
+		count_vote = Vote.objects.filter(user = user, session=session, place=self).count()
 
+
+		if(count_vote == 0):
+			self.place_votes.create(user=user, place=self, session= session, vote_value="down")
+			self.nbr_votes = -1
+			self.save()               
+			return 'vote added'
+		else:
+			users_vote = Vote.objects.get(user=user, place=self, session= session)
+			if (users_vote.vote_value == 'down'):
+				print("already downvoted")
+			else:
+				self.nbr_votes -= 2
+				self.save()
+				users_vote.vote_value = 'down'
+				users_vote.save()
 
 class Vote(models.Model):
 	user = models.ForeignKey(User, related_name ='user_votes', on_delete=models.CASCADE)
 	session = models.ForeignKey(Session, related_name ='session_votes', on_delete=models.CASCADE)
 	place = models.ForeignKey(SelectedPlace, related_name ='place_votes', on_delete=models.CASCADE)
-	vote_type = models.CharField(max_length = 4, default ='none')
+	vote_value = models.CharField(max_length = 4, default ='none')
 
 	class Meta:
 		unique_together = ('user', 'session', 'place')

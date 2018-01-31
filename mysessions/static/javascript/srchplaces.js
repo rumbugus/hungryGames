@@ -5,6 +5,8 @@
   var srchRadius = 830;
   var timeout = null;
 
+  //to do : replace geocoder function with server side function
+
 
   function initMap(){
     getPos = function () {
@@ -71,21 +73,16 @@
               //else add green marker and change itm class to 'added' 
             }
             for(var i = 0; i<arrSelectedPlaces.length; i++){
+
+              var elementInDOM = document.getElementById(arrSelectedPlaces[i][0]);
+              $(elementInDOM).addClass('added');
               createAddedMarker(arrSelectedPlaces[i][0], arrSelectedPlaces[i][1]);
             }
           }
         }
 
 
-  function isIdInArray(array, item) {
-          for (var i = 0; i < array.length; i++) {
-            //if id in array => true
-            if (array[i][0] == item) {
-              return true; 
-            }
-          }
-          return false; 
-        }
+
 
   function createMarker(place) {
     var marker = null;
@@ -123,6 +120,9 @@
           }
         } else {
           console.log('Geocoder failed due to: ' + status);
+          if(status == 'OVER_QUERY_LIMIT'){
+
+          }
         }
       });
 
