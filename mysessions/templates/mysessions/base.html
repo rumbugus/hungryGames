@@ -1,8 +1,3 @@
-show logged user (account settings page on click, settings icon on hover)
-home icon that directs to /sessions
-logout button
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,20 +8,20 @@ logout button
 <link href='https://fonts.googleapis.com/css?family=Satisfy' rel='stylesheet' type='text/css'>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}"/>﻿
+<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}"/>
 </head>
 <body>
 	<nav class="navbar navbar-inverse">
 		<div class="container-fluid">
-		
-			<!-- Header -->
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#topNavBar">
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="{% url 'music:index' %}">{{request.user.username}} </a>
+				<a class="navbar-brand" href="{% url 'mysessions:index' %}" style='vertical-align:super'>
+					    <img id='logo' src='{% static 'style/logo.png' %}' style='width:100px; height:100px; vertical-align:super;'></img>
+				 </a>
 			</div>
 			<!-- Items -->
 			<div class="collapse navbar-collapse" id="topNavBar">
@@ -37,15 +32,11 @@ logout button
 						</a>
 					</li>
 					<li class="">
-						<a href="{% url 'music:index' %}">
-							<span class="glyphicon glyphicon-cd" aria-hidden="true"></span>&nbsp;My profile
+						<a href="{% url 'mysessions:index' %}">
+							<span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>&nbsp;My eatouts
 						</a>
 					</li>
-					<li class="">
-						<a href="#">
-							<span class="glyphicon glyphicon-music" aria-hidden="true"></span>&nbsp;Songs
-						</a>
-					</li>
+
 				</ul>
 
 
@@ -63,7 +54,6 @@ logout button
 		</div>
 
 	</nav>
-
 {% block body %}
 {% endblock %}
 </body>

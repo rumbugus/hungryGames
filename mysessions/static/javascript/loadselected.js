@@ -1,4 +1,4 @@
-var arrSelectedPlaces =[];
+var arrSelectedPlaces =[]; /// contains place_id, place_name, place coordinates 
 
 
   $( function() {
@@ -48,7 +48,7 @@ function getSelectedList(){
                     		 "&nbsp;<a href='#' class='flag-button'><span class='glyphicon glyphicon-flag'></span></a>"+
                   "&nbsp;<a href='#' class='flag-button'><span class='glyphicon glyphicon-info-sign info-button' data-toggle='modal'></span></a>&nbsp;"
                     		);
-                    	listElement.id = placeID;
+                    	listElement.id = placeID + "voting";
                     	listElement.classList.add('place-list-item');
 
                     	const votesDisplay = document.createElement("span");
@@ -60,17 +60,17 @@ function getSelectedList(){
                     	const placeNameNode = document.createTextNode(placeName);
 
                     	listElement.appendChild(placeNameNode);
-                    	$(listElement).append("<a class='minus-button align-right' href='#'><span class='glyphicon glyphicon-thumbs-down' aria-hidden='true'></span></a>&nbsp;");        	
+                    	$(listElement).append("<a class='minus-button align-right enabled-button' href='#'><span class='glyphicon glyphicon-thumbs-down' aria-hidden='true'></span></a>&nbsp;");        	
                     	listElement.appendChild(votesDisplay);
-                    	$(listElement).append("<a class='plus-button align-right' href='#'><span class='glyphicon glyphicon-thumbs-up' aria-hidden='false'></span>&nbsp;</a>&nbsp;");
+                    	$(listElement).append("<a class='plus-button align-right enabled-button' href='#'><span class='glyphicon glyphicon-thumbs-up' aria-hidden='false'></span>&nbsp;</a>&nbsp;");
 
                     	$('#selectedPlacesList').append(listElement);
-                    	initMap();
+                    	//initMap();
                       //createAddedMarker(placeID);
 
                   }else{
                   	var displayedVotes = document.getElementById(placeID+"votes");
-                  	console.log($(displayedVotes).text());
+                  //	console.log($(displayedVotes).text());
                   	if ($(displayedVotes).text() != placeVotes){
                   		console.log($(displayedVotes).text()+placeVotes+"updating" +i);
                   		$(displayedVotes).text(placeVotes) ;
@@ -80,6 +80,36 @@ function getSelectedList(){
           }
       });
 }
+
+
+
+
+function getWinner(){
+
+  $('.ajaxProgress').show();
+  $.ajax({
+    type: "GET",
+    url: 'getWinner/',
+    dataType: "json",
+    async: true,
+    data: {csrfmiddlewaretoken: '{{ csrf_token}}'},
+    success: function (json){ 
+          console.log("Get winner was fucking called");
+          clearVotes();
+          document.getElementById('winner').innerHTML= "The masses have spoken! </br> We're going to... </br> <span id='restaurant-name'>"+ json.message +"</span>";
+          document.getElementById('winner').classList.add('winnerDisplayed');
+
+          }
+      });
+}
+
+function clearVotes(){
+  var myNode = document.getElementById("selectedPlacesList");
+  while (myNode.firstChild) {
+    myNode.removeChild(myNode.firstChild);
+  }
+}
+
 
 getSelectedList();
 var myVar = setInterval(function(){getSelectedList()}, 1000);

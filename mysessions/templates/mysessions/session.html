@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
 
-  <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans|Roboto" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans|Roboto|Orbitron|Allan|Alfa Slab One" rel="stylesheet">
 
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> 
@@ -18,6 +18,56 @@
 
 
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <script>
+
+  var timeLeft = {{ time_remaining }}; //in seconds
+  var d = new Date();
+  var loadTime = d.getTime()/1000; //time now in seconds
+  var endTime = loadTime + timeLeft; //end time in seconds
+
+
+            
+  function myTimer(){
+    var d2 = new Date();
+    var now = d2.getTime()/1000;
+    var timeDelta = endTime - now; //remaining time in seconds
+
+    if(timeDelta >= 0){
+      var hours = timeDelta/3600;
+      var minutes = (hours%1)*60;
+      var seconds = (minutes%1)*60;
+      var timeString = pad(Math.trunc(hours),2) + " : " + pad(Math.trunc(minutes),2) + " : "+ pad(Math.trunc(seconds),2);
+      document.getElementById("timer").innerHTML = timeString;
+      if(timeDelta < 300){
+        document.getElementById("timer").style.color ="red";
+      }
+    }else{
+      //block voteup/votedown buttons, block add buttons
+      //display Winner
+      document.getElementById("timer").innerHTML = "00 : 00 : 00";
+
+      clearInterval(setIntervalTimer);
+
+      $(".enabled-button").each(function() {
+          $(this).addClass("disabled");
+      });
+
+      var getwinner = getWinner();
+
+      }
+
+    }
+
+  function pad(num, size) {
+    var s = "000000000" + num;
+    return s.substr(s.length-size);
+}
+
+  var setIntervalTimer = setInterval(function(){ myTimer()}, 1000);
+
+
+</script>
 
   <script async defer type="text/javascript" src='{% static "javascript/loadselected.js"%}'></script>
 
@@ -28,8 +78,10 @@
       /* Always set the map height explicitly to define the size of the div
       * element that contains the map. */
       #map {
-        height: 400px;
-        width:600px;
+        height: 1200px;
+        width:760px;
+        margin:5px;
+        border: solid #e2610a;
       }
       /* Optional: Makes the sample page fill the window. */
       html, body {
@@ -49,66 +101,58 @@
 
 
     </head>
-
     <a href='/sessions/'><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;back to list</a>
+    <p class='session-title'>{{ session_descr }}</p>
 
-    <div id='main-container' class='container'> 
-      <div class='row'>
-        <div class='col-xs-1'>
-          <h3 class='session-title'>{{ session_descr }}</h3>
-        </div>
-        <div class='col-xs-9'></div>
 
-        <div class='col-xs-2'>
-          <p> {{ session_time }}</p>
-        </div>
+        <div class='row'>
+        <div id='main-container'>
+                <div class='row'>
+          <div class='col-xs-4'> </div>
+          <div class='col-xs-4' id='timer-box'>
+             <h2 id ='timer' class='timer'>00 : 00 : 00</h2>
+          </div>
+          <div class='col-xs-4'> </div>
+
       </div>
 
-      <div id="tabs">
-        <ul>
-          <li><a href="#tabs-1">1 - Add places</a></li>
-          <li><a href="#tabs-2">2 - Vote!</a></li>
-        </ul>
-        <div id="tabs-1">
-          <div id='containerSrchResults'  class='row' style='background-color:#f9f9f9'>
 
-            <h3 class='search-title'>Add a place, any place *</h3>
-            <h5 style='text-align:right'> ...or proceed to voting page</h5>
 
-            <p class='p-rad'> Maximum <span><input type='number' id='radius' value='10' min='1'></input></span> minutes away</p>
 
-            <div id='results-list-container' class='col-xs-5'>
+       
+        <div class='col-md-6' id='left-boxes'>
+
+          <div id='containerSelectedPlaces' class='row'>
+             <div id='voteHere-box'> <h1 ='voteHere-text'> - VOTE HERE - </h1> </div>
+
+            <div id='selected-places'>
+              <ul id='selectedPlacesList'></ul>
+              <h3 id='winner'></h3>
+            </div>
+          </div>
+
+
+          <div id='containerSrchResults'  class='row'>
+              <div id='pickSome-box'> <h1> - PICK SOME - </h1> </div>
+                <div class='p-rad'>
+                <p> Maximum <span><input type='number' id='radius' value='10' min='1'></input></span> minutes away</p>
+              </div>
+            <div id='results-list-container'>
               <form action="" method="POST">
                 {% csrf_token %}
                 <ul id='srchResultsList'></ul>
               </form>
             </div>
-            <div id='map-container' class='col-xs-7'>
+          </div>
+
+        </div>
+
+            <div id='map-container' class='col-md-6'>
               <div id='map'></div>
             </div>
-          </div>
-
-        </div>
-
-
-        <div id="tabs-2">
-          <div id='containerSelectedPlaces' style='background-color:#f9f9f9' class='row'>
-            <div class='col-xs-2'></div>
-            <div id='selected-places' class='col-xs-8'>
-
-              <ul id='selectedPlacesList'></ul>
-            </div>
-            <div class='col-xs-2'></div>
-          </div>
-
-        </div>
       </div>
-
-
-
-
-
     </div>
+  </div>
 
 
     <!-- Modal -->
@@ -125,10 +169,10 @@
 
             <div id='modal-container' class='container'>
               <div class='row'>
-                <div id='modal-details' class='col-xs-5'>
+                <div id='modal-details' class='col-xs-6'>
                   <p>Some text in the modal.</p>
                 </div>
-                <div id='mapModal' class='col-xs-7'>
+                <div id='mapModal' class='col-xs-6'>
                 </div>
               </div>
             </div>
@@ -140,7 +184,6 @@
         </div>
 
       </div>
-    </div>
 
   </div>
 

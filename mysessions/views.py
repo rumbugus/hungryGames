@@ -2,23 +2,57 @@ from .models import SelectedPlace, Session, Vote
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.template import loader 
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.contrib.auth.decorators import login_required
-
-
+import datetime
+import pytz
+from django.db.models import Max
 import json
+from django.template import RequestContext
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponseRedirect
+
+
+
+
+from django.contrib.auth import (
+	authenticate,
+	get_user_model,
+	login,
+	logout
+)
+
+from django.shortcuts import render 
+
+from .forms import UserLoginForm
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(username=username, password=password)
+        if user is not None and user.is_active:
+            login(request, user)
+            return HttpResponseRedirect("mysessions/sessions.html")
+        return HttpResponseRedirect("/account/invalid/")
+    form = UserLoginForm()
+    return render(request, 'mysessions/login.html', {'login_form': UserLoginForm})
+
 
 @login_required(login_url='/login')
 def session(request, session_id):
 	selected_places = SelectedPlace.objects.all()
 	session_descr = Session.objects.get(pk=session_id).session_description
 	session_time = Session.objects.get(pk=session_id).session_time
+	time_remaining = Session.objects.get(pk=session_id).get_time_diff()
 
 	template = loader.get_template('mysessions/session.html')
 	context ={
 		'selected_places':selected_places,
 		'session_descr': session_descr,
-		'session_time': session_time
+		'session_time': session_time,
+		'time_remaining':time_remaining
 	}
 
 	return HttpResponse(template.render(context,request))
@@ -103,3 +137,25 @@ def index(request):
 
 
 
+def getWinner(request, session_id):
+
+	session = Session.objects.get(id=session_id)
+
+	winner = Session.whoWon(session)
+
+	response_data ={}
+
+	#data = list(winner)
+	print(winner)
+
+	try:
+		response_data['result'] = 'Success'
+		response_data['message'] = winner
+	except:
+		response_data['result'] = 'Oh NO!'
+		response_data['message'] = 'Subprocess did not script correctly'
+	return HttpResponse(json.dumps(response_data), content_type="applicaiton/json")
+
+
+
+	##if multiple, then pick one at random 

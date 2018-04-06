@@ -2,52 +2,104 @@
     float: right;
 }
 
-
+body{
+    background-color: #f6f6f3;
+}
 
 .place-list-item{
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     font:bold;
-    max-width:500px;
+    max-width:600px;
     position: relative;
     display: block;
     padding: .4em .4em .4em .6em;
-    *padding: .4em;
-    border-top:solid white;
-    background: #bbceb5;
-    color: #444;
+    border-top:solid #1e3231;
+    background: #4e6e5d;
+    color: #e4e2c8;
     text-decoration: none;
     border-radius: .3em;
-    transition: all .3s ease-out;   
+    transition: all .3s ease-out;  
+    margin:auto; 
 }
 
 .place-list-item:hover{
-    background: #eee;
+    background: #53dd6c;
 }
 
-.srch-list-itm{
-    max-width:500px;
-    position: relative;
+
+.disabled {
+    pointer-events: none;
+}
+
+
+#logo{
     display: block;
-    padding: .4em .4em .4em .4em;
-    *padding: .4em;
-    border-top:solid white;
-    background:     #5cacee;
-    color: #444;
-    text-decoration: none;
+    max-width: 125px;
+    max-height: 125px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+#timer-box{
+    background-color:#cc2029;
+    border-radius: .5em;
+    margin-bottom: 40px;
+}
+#main-container{
+    height: 1300px;
+    padding: 20px;
+    margin-top:10px;   
+}
+
+#map-container{
+    width:800px;
+}
+
+#containerSelectedPlaces{
+    background-color: #1e3231;
+    margin-left:60px;
+    margin-right:20px; 
     border-radius: .3em;
-    transition: all .3s ease-out;   
 }
 
-.srch-list-itm:hover{
-    background: #ffa500;
+#selected-places{
+    overflow: auto;
+    min-height: 300px;
+    max-height: 500px;
+    position:relative
+}
+
+#containerSrchResults{
+    margin-top: 20px;
+    margin-right:20px;
+    margin-left:60px;
+    background-color:#3f4d3f;
+    border-radius: .3em;
+}
+#results-list-container{
+    overflow: auto;
+    max-height: 546px;
+    position:relative
+}
+
+#left-boxes{
+    max-height: 800px;
+    position:relative
 }
 
 
-#containerSelectedPlaces, #containerSrchResults{
-    padding-bottom: 40px;
+#pickSome-box, #voteHere-box{
+    height:60px;
+    background-color: #e2610a;
+    margin:0px;
+    color:#FFEFD7;
+    text-align: center;
+    font-family: 'Alfa Slab One';
+    margin-bottom: 10px;
+    padding-top: 0.1em;
 }
-
 
 
 #radius{
@@ -55,19 +107,8 @@
     padding:0px;
 }
 
-#results-list-container{
-    overflow: auto;
-    max-height: 400px;
-}
-
-#map-container{
 
 
-}
-
-.col-xs-6{
-    border:black solid;
-}
 
 .search-title{
     text-align: center;
@@ -83,13 +124,50 @@
 
 .glyphicon{
     margin: 4px;
+    color:#befba4;
+    font-size:1.4em;
 }
 
 .added{
-    background-color: #00c78c;
+    background-color: #8bc34a;
 }
 
 
 .p-rad{
-    margin-left: 10px;
+    margin-left: 120px;
+    color:white;
+}
+
+
+.timer{
+    text-align:center;
+    font-family: 'Orbitron';
+}
+
+.winner-box{
+    text-align: center;
+    vertical-align: middle;
+}
+
+#id{
+    text-align: center;
+}
+
+.winnerDisplayed{
+    font-size: 2em;
+    color: #e4e2c8;
+    text-align: center;
+    margin:60px;
+}
+
+#restaurant-name{
+    font-family: 'Allan';
+    font-size: 2.4em;
+}
+
+
+
+
+#modal-dialog{
+    width:1000px;
 }

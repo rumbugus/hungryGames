@@ -16,13 +16,18 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from mysessions import views as mysessions
 
 #from useraccounts.views import (login_view, register_view, logout_view)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^login/$', auth_views.login),
+    #url(r'^login/$', 'django.contrib.auth.views.login'),
+
+   url(r'^login/$', auth_views.login),
+   #url(r'^login/$', login, {'template_name': 'mysessions/login.html'}),
     url(r'^logout/$', auth_views.logout),
+
 
     #user auth urls
     #url(r'^accounts/login$'),

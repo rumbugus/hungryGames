@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import django.contrib.auth
+django.contrib.auth.LOGIN_URL = '/'
+import os.path
+Temp_Path = os.path.realpath('.')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -57,7 +61,7 @@ ROOT_URLCONF = 'hungryGames.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -68,6 +72,12 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+
+TEMPLATE_DIRS = [
+    Temp_Path +"/template"
+
 ]
 
 WSGI_APPLICATION = 'hungryGames.wsgi.application'
@@ -121,6 +131,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = '' 
 
 LOGIN_REDIRECT_URL = '/sessions/'
