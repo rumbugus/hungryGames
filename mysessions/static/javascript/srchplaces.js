@@ -70,9 +70,11 @@
 
             if(pagination.hasNextPage){
               pagination.nextPage();
+            }else{
+              populateSrchList();
+
             }
 
-            populateSrchList();
 
             for(var i = 0; i<arrSelectedPlaces.length-1; i++){
 
@@ -83,30 +85,34 @@
           }
         }
 
-////create Marker, populate the array, leave them invisible by default 
+////if place doesn't have a marker, create Marker,add to marker array
         function createMarker(place) {
-          var marker = null;
 
-          var placeLoc = place.geometry.location;
-          var marker = new google.maps.Marker({
-            map: map,
-            position: place.geometry.location
-          });
+          if(place.markerIndex == -1){
+            var marker = null;
 
-          if(isIdInArray(arrSelectedPlaces, place.id) == true){
-            marker.setIcon('http://maps.google.com/mapfiles/kml/paddle/grn-stars.png');
+            var placeLoc = place.geometry.location;
+            var marker = new google.maps.Marker({
+              map: map,
+              position: place.geometry.location
+            });
+
+            if(isIdInArray(arrSelectedPlaces, place.id) == true){
+              marker.setIcon('http://maps.google.com/mapfiles/kml/paddle/grn-stars.png');
+            }
+
+
+              gMarkers.push(marker);
+              place.markerIndex = gMarkers.length -1;
+            
+
+            google.maps.event.addListener(marker, 'click', function() {
+              infowindow.setContent(place.name);
+              infowindow.open(map, this);
+            });
+
           }
 
-
-          if(gMarkers.indexOf(marker) == -1){
-            gMarkers.push(marker);
-            place.markerIndex = gMarkers.length -1;
-          }
-
-          google.maps.event.addListener(marker, 'click', function() {
-            infowindow.setContent(place.name);
-            infowindow.open(map, this);
-          });
         }
 
 
@@ -179,9 +185,9 @@
 
           if(maxDistance < srchRadius){
              while (searchResults[i].distance<srchRadius && i<searchResults.length-1){
-               //if place is not on the page, add it to the page
+               //if place is not on srchResultsList and if not Selected for Voting, add it to the page
 
-                if (searchResults[i].onSrchList == 'N'){
+                if (searchResults[i].onSrchList == 'N' && isIdInArray(arrSelectedPlaces, searchResults[i].id) == false){
                     console.log("fucking adding "+i);
                    $('#srchResultsList').append("<li class='place-list-item' id='"+searchResults[i].id+"'>"+
                     "&nbsp;<a href='#' class='info-button'><span class='glyphicon glyphicon-info-sign info-button' data-toggle='modal' ></span></a>&nbsp;"+
@@ -228,8 +234,16 @@ $(document).on('click', '.add-button', function(e){
    },
    success:function(){
     console.log("place added");
+    var place = searchResults.find(x => x.id === placeID);
+    removeMarker(place);
+
+    document.getElementById(placeID).remove()
   }
 })
+
+
+
+
 });
 
 

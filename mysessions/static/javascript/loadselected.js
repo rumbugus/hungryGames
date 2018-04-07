@@ -1,10 +1,6 @@
 var arrSelectedPlaces =[]; /// contains place_id, place_name, place coordinates 
 
 
-  $( function() {
-    $( "#tabs" ).tabs();
-  } );
-
 
   function isIdInArray(array, item) {
           for (var i = 0; i < array.length; i++) {
@@ -65,8 +61,13 @@ function getSelectedList(){
                     	$(listElement).append("<a class='plus-button align-right enabled-button' href='#'><span class='glyphicon glyphicon-thumbs-up' aria-hidden='false'></span>&nbsp;</a>&nbsp;");
 
                     	$('#selectedPlacesList').append(listElement);
-                    	//initMap();
-                      //createAddedMarker(placeID);
+
+                    ///find place by place id and create marker using that place
+                    var place = searchResults.find(x => x.id == placeID);
+                    console.log("Found place by ID: " + placeID +"  "+ place.name);
+
+                    createMarker(place);
+
 
                   }else{
                   	var displayedVotes = document.getElementById(placeID+"votes");
@@ -96,12 +97,16 @@ function getWinner(){
     success: function (json){ 
           console.log("Get winner was fucking called");
           clearVotes();
+
           document.getElementById('winner').innerHTML= "The masses have spoken! </br> We're going to... </br> <span id='restaurant-name'>"+ json.message +"</span>";
           document.getElementById('winner').classList.add('winnerDisplayed');
+          document.getElementById('voteHere-text').innerHTML = " - Winner - "
 
           }
       });
 }
+
+
 
 function clearVotes(){
   var myNode = document.getElementById("selectedPlacesList");
@@ -112,5 +117,7 @@ function clearVotes(){
 
 
 getSelectedList();
-var myVar = setInterval(function(){getSelectedList()}, 1000);
+
+var myVar = setInterval(function(){
+  getSelectedList()}, 1000);
 

@@ -52,6 +52,7 @@
       $(".enabled-button").each(function() {
           $(this).addClass("disabled");
       });
+      clearTimeout(myVar);
 
       var getwinner = getWinner();
 
@@ -123,7 +124,7 @@
         <div class='col-md-6' id='left-boxes'>
 
           <div id='containerSelectedPlaces' class='row'>
-             <div id='voteHere-box'> <h1 ='voteHere-text'> - VOTE HERE - </h1> </div>
+             <div id='voteHere-box'> <h1 id='voteHere-text'> - VOTE HERE - </h1> </div>
 
             <div id='selected-places'>
               <ul id='selectedPlacesList'></ul>
