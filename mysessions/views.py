@@ -2,16 +2,16 @@ from .models import SelectedPlace, Session, Vote
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.template import loader 
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 import datetime
 import pytz
 from django.db.models import Max
 import json
 from django.template import RequestContext
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect
+
 
 
 
@@ -82,10 +82,11 @@ def addPlace(request, session_id):
 def downvote(request, session_id):
 	if request.method == 'POST':
 		place_id = request.POST['place_id']
-		place = SelectedPlace.objects.get(place_id=place_id, session_id=session_id) 
+		real_session_id = Session.objects.get(pk=session_id)
+		place = SelectedPlace.objects.get(session_id_id='1', place_id="ChIJoYK-GnYZyUwRLdfmsIrFRWE") 
 		user = request.user 
 
-
+		place.save()
 		place.downvote(user, session_id)
 
 	return HttpResponse()
@@ -93,8 +94,9 @@ def downvote(request, session_id):
 
 def upvote(request, session_id):
 	if request.method == 'POST':
-		place_id = request.POST['place_id']
-		place = SelectedPlace.objects.get(place_id=place_id, session_id=session_id) 
+
+		place = get_object_or_404(SelectedPlace, place_id=request.POST['place_id'], session_id=session_id) 
+
 		user = request.user 
 
 		place.upvote(user, session_id)

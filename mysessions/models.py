@@ -35,7 +35,7 @@ class Session(models.Model):
 			max_votes = SelectedPlace.objects.filter(session_id=self.id).aggregate(Max('nbr_votes'))['nbr_votes__max']
 			winners = SelectedPlace.objects.filter(nbr_votes= max_votes, session_id=self.id)
 			rand_item = winners[random.randrange(len(winners))]
-			self.winner = rand_item.place_name
+			self.winner = rand_item.place_id
 			self.save()
 		return self.winner
 

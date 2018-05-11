@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
-
   <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans|Roboto|Orbitron|Allan|Alfa Slab One" rel="stylesheet">
 
 
@@ -19,19 +18,26 @@
 
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
+
+
+
+  <script async defer type="text/javascript" src='{% static "javascript/srchplaces.js"%}'></script>
+
   <script>
 
-  var timeLeft = {{ time_remaining }}; //in seconds
+  var timeDelta = {{ time_remaining }}; //in seconds
   var d = new Date();
   var loadTime = d.getTime()/1000; //time now in seconds
-  var endTime = loadTime + timeLeft; //end time in seconds
+  var endTime = loadTime + timeDelta; //end time in seconds 
 
 
             
   function myTimer(){
+    
     var d2 = new Date();
     var now = d2.getTime()/1000;
-    var timeDelta = endTime - now; //remaining time in seconds
+    timeDelta = endTime - now;
+     //remaining time in seconds
 
     if(timeDelta >= 0){
       var hours = timeDelta/3600;
@@ -39,25 +45,14 @@
       var seconds = (minutes%1)*60;
       var timeString = pad(Math.trunc(hours),2) + " : " + pad(Math.trunc(minutes),2) + " : "+ pad(Math.trunc(seconds),2);
       document.getElementById("timer").innerHTML = timeString;
-      if(timeDelta < 300){
-        document.getElementById("timer").style.color ="red";
-      }
     }else{
       //block voteup/votedown buttons, block add buttons
       //display Winner
       document.getElementById("timer").innerHTML = "00 : 00 : 00";
 
       clearInterval(setIntervalTimer);
-
-      $(".enabled-button").each(function() {
-          $(this).addClass("disabled");
-      });
-      clearTimeout(myVar);
-
-      var getwinner = getWinner();
-
+      getWinner();
       }
-
     }
 
   function pad(num, size) {
@@ -69,10 +64,9 @@
 
 
 </script>
+ 
+  <script async defer type="text/javascript" src='{% static "javascript/jquery.js"%}'></script>
 
-  <script async defer type="text/javascript" src='{% static "javascript/loadselected.js"%}'></script>
-
-  <script async defer type="text/javascript" src='{% static "javascript/srchplaces.js"%}'></script>
 <link rel="stylesheet" href="{% static 'style/mystyle.css' %}">
 
   <style>
@@ -104,8 +98,6 @@
     </head>
     <a href='/sessions/'><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;back to list</a>
     <p class='session-title'>{{ session_descr }}</p>
-
-
         <div class='row'>
         <div id='main-container'>
                 <div class='row'>
@@ -114,12 +106,7 @@
              <h2 id ='timer' class='timer'>00 : 00 : 00</h2>
           </div>
           <div class='col-xs-4'> </div>
-
       </div>
-
-
-
-
        
         <div class='col-md-6' id='left-boxes'>
 
@@ -135,7 +122,7 @@
 
           <div id='containerSrchResults'  class='row'>
               <div id='pickSome-box'> <h1> - PICK SOME - </h1> </div>
-                <div class='p-rad'>
+                <div class='p-rad' id='p-rad'>
                 <p> Maximum <span><input type='number' id='radius' value='10' min='1'></input></span> minutes away</p>
               </div>
             <div id='results-list-container'>

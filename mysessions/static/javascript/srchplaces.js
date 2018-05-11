@@ -10,7 +10,15 @@
   var coords;
 
 
+var arrSelectedPlaces =[]; /// contains place_id, place_name, place coordinates 
+var winner;
+
+
+
   function initMap(){
+//if timer > 0 => populate places array and populate the searchResults 
+//if timer Б 0 => call getWinner function 
+
    navigator.geolocation.getCurrentPosition(function (position) {
     console.log("Successfully retrieved position: ", position);
 
@@ -25,16 +33,27 @@
     infowindow = new google.maps.InfoWindow();
     var service = new google.maps.places.PlacesService(map);
 
-    service.nearbySearch({
-      location: pyrmont,
-      type: ['restaurant'],
-      rankBy: google.maps.places.RankBy.DISTANCE,
-    }, callback);
+    console.log(timeDelta);
+      if(timeDelta > 0){
+            service.nearbySearch({
+            location: pyrmont,
+            type: ['restaurant'],
+            rankBy: google.maps.places.RankBy.DISTANCE,
+          }, callback);
+      }else{
+          var getwinner = getWinner();
+          $(".enabled-button").each(function() {
+            $(this).addClass("disabled");
+           });
+      }
   }, function (error) {
     alert("Could not retrieve position, please refresh the page.");
     console.log("Something went wrong retrieving position: ", error);
     setTimeout(getPos, 5000);
   });
+
+
+
  }
 
 
@@ -45,48 +64,43 @@
       var a = 
       Math.sin(dLat/2) * Math.sin(dLat/2) +
       Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2)
-      ; 
+      Math.sin(dLon/2) * Math.sin(dLon/2); 
       var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
       var d = R * c; // Distance in km
       return d;
     }
 
-    function deg2rad(deg) {
-      return deg * (Math.PI/180)
-    }
+function deg2rad(deg) {return deg * (Math.PI/180)}
 
 
 
-    function callback(results, status, pagination) {
-
+function callback(results, status, pagination) {
       console.log("updating search results");
-        //clear search results list
-     //   $('#srchResultsList').children().remove();
-
         if (status === google.maps.places.PlacesServiceStatus.OK) {
 
-            populateSrchArray(results);
+            populateSrchArray(results, function (){
+                if(pagination.hasNextPage){
+                   pagination.nextPage();
+                   console.log("NEXTPAGE NEXTPAGE NEXTPAGE NEXTPAGE");
+                 }else{
+                    console.log("calling getSelectedList for the first time");
+                    
+                      
+                      if(timeDelta > 0){
+                        var selectedVar = getSelectedList();
+                        populateSrchList();
+                        var getListInterval = setInterval(function(){getSelectedList()}, 1000);
 
-            if(pagination.hasNextPage){
-              pagination.nextPage();
-            }else{
-              populateSrchList();
+                      }
 
-            }
+                    }
 
-
-            for(var i = 0; i<arrSelectedPlaces.length-1; i++){
-
-              var elementInDOM = document.getElementById(arrSelectedPlaces[i][0]);
-              $(elementInDOM).addClass('added');
-              createAddedMarker(arrSelectedPlaces[i][0], arrSelectedPlaces[i][1]);
-            }
-          }
+                  });
         }
+      }
 
 ////if place doesn't have a marker, create Marker,add to marker array
-        function createMarker(place) {
+function createMarker(place) {
 
           if(place.markerIndex == -1){
             var marker = null;
@@ -97,7 +111,7 @@
               position: place.geometry.location
             });
 
-            if(isIdInArray(arrSelectedPlaces, place.id) == true){
+            if(isIdInArray(arrSelectedPlaces, place.place_id) == true){
               marker.setIcon('http://maps.google.com/mapfiles/kml/paddle/grn-stars.png');
             }
 
@@ -112,17 +126,17 @@
             });
 
           }
-
         }
 
 
-        function removeMarker(place){
+function removeMarker(place){
           var i = place.markerIndex;
           console.log("removing marker with index " + i + "of place " + place.name);
           gMarkers[i].setMap(null);
+          place.markerIndex = -1;
         }
 
-        function createAddedMarker(placeId, placeName) {
+function createAddedMarker(placeId, placeName) {
           var marker = null;
           var geocoder = new google.maps.Geocoder;
 
@@ -150,201 +164,245 @@
         }
 
 
-        function populateSrchArray(results){
-          for (var i = 0; i < results.length; i++) {
-            var place = results[i];
-            place.distance = distance(coords.latitude, coords.longitude, results[i].geometry.location.lat(), results[i].geometry.location.lng());
-            place.onSrchList = 'N';
-            place.markerIndex = '-1';
-            place.selectedVoting = 'N';
+function populateSrchArray(results, callback){
+for (var i = 0; i < results.length; i++) {
+  var place = results[i];
+  place.distance = distance(coords.latitude, coords.longitude, results[i].geometry.location.lat(), results[i].geometry.location.lng());
+  place.onSrchList = 'N';
+  place.markerIndex = '-1';
+  place.selectedVoting = 'N';
 
-            if(searchResults.indexOf(place) == -1){
-                searchResults.push(place);
-            }
-          }
-        }
-
-
-        $(document).on('keyup mouseup', '#radius',function(e){
-          clearTimeout(timeout);
-          timeout = setTimeout(function () {
-
-          populateSrchList();
-
-          }, 1000);
-                });
-
-
-
-          var maxDistance = 0;
-
-        function populateSrchList(){
-          srchRadius = $('#radius').val()*0.070;
-          var i =0;
-          console.log("fucking radius is : " + srchRadius);
-
-          if(maxDistance < srchRadius){
-             while (searchResults[i].distance<srchRadius && i<searchResults.length-1){
-               //if place is not on srchResultsList and if not Selected for Voting, add it to the page
-
-                if (searchResults[i].onSrchList == 'N' && isIdInArray(arrSelectedPlaces, searchResults[i].id) == false){
-                    console.log("fucking adding "+i);
-                   $('#srchResultsList').append("<li class='place-list-item' id='"+searchResults[i].id+"'>"+
-                    "&nbsp;<a href='#' class='info-button'><span class='glyphicon glyphicon-info-sign info-button' data-toggle='modal' ></span></a>&nbsp;"+
-                    searchResults[i].name+
-                    "<a class='add-button align-right enabled-button' href='#'><span class='glyphicon glyphicon-plus-sign' aria-hidden='true'></span></a>&nbsp;"+
-                    "&nbsp;<a href='#' class='flag-button align-right'><span class='glyphicon glyphicon-flag'></span></a>&nbsp;&nbsp;</li>");
-                    searchResults[i].onSrchList = 'Y';
-                    createMarker(searchResults[i]);
-                }
-              i++;           
-            }
-          }else{
-              i = searchResults.length -1;
-              while(searchResults[i].distance > srchRadius){
-                placeDomElement = document.getElementById(searchResults[i].id);
-                if(placeDomElement != null){
-                  console.log("fucking removing "+i);
-                  $(placeDomElement).remove();
-                  searchResults[i].onSrchList = 'N';
-                  if(isIdInArray(arrSelectedPlaces, searchResults[i].id) == false){
-                    removeMarker(searchResults[i]);
-                  }
-                }
-                ////if place is not selected for voting;
-
-                i --;
-            }
-          }
-          maxDistance = searchResults[i].distance;
-        }
-
-
-$(document).on('click', '.add-button', function(e){
-  e.preventDefault();
-  var id = $(this).id;
-
-  $.ajax({
-    type: 'POST',
-    url: 'add/',
-    data:{
-     place_id: $(this).parent().attr('id'),
-     place_name: $(this).parent().text(),
-     csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-   },
-   success:function(){
-    console.log("place added");
-    var place = searchResults.find(x => x.id === placeID);
-    removeMarker(place);
-
-    document.getElementById(placeID).remove()
+  if(searchResults.indexOf(place) == -1){
+      searchResults.push(place);
   }
-})
+}
+callback();
+}
 
 
+var maxDistance = 0;
 
+function populateSrchList(){
+  srchRadius = $('#radius').val()*0.070;
+  var i =0;
 
-});
+  if(maxDistance < srchRadius){
+     while (searchResults[i].distance<srchRadius && i<searchResults.length-1){
+       //if place is not on srchResultsList and if not Selected for Voting, add it to the page
 
-
-$(document).on('click', '.minus-button', function(e){
-  e.preventDefault();
-  var id = $(this).id;
-
-  $.ajax({
-    type: 'POST',
-    url: 'down/',
-    data:{
-      place_id: $(this).parent().attr('id'),
-      csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-    },
-    success:function(){
-      console.log("place downvoted");
+        if (searchResults[i].onSrchList == 'N' && isIdInArray(arrSelectedPlaces, searchResults[i].place_id) == false){
+            console.log("fucking adding "+i);
+           $('#srchResultsList').append("<li class='place-list-item' id='"+searchResults[i].place_id+"'>"+
+            "&nbsp;<a href='#' class='info-button'><span class='glyphicon glyphicon-info-sign info-button' data-toggle='modal' ></span></a>&nbsp;"+
+            searchResults[i].name+
+            "<a class='add-button align-right enabled-button' href='#'><span class='glyphicon glyphicon-plus-sign' aria-hidden='true'></span></a>&nbsp;"+
+            "&nbsp;<a href='#' class='flag-button align-right'><span class='glyphicon glyphicon-flag'></span></a>&nbsp;&nbsp;</li>");
+            searchResults[i].onSrchList = 'Y';
+            createMarker(searchResults[i]);
+        }
+      i++;           
     }
-  })
-});
+  }else{
+      i = searchResults.length -1;
+      while(searchResults[i].distance > srchRadius){
+        placeDomElement = document.getElementById(searchResults[i].place_id);
+        if(placeDomElement != null){
+          console.log("fucking removing "+i);
+          $(placeDomElement).remove();
+          searchResults[i].onSrchList = 'N';
+          if(isIdInArray(arrSelectedPlaces, searchResults[i].place_id) == false){
+            removeMarker(searchResults[i]);
+          }
+        }
+        ////if place is not selected for voting;
 
-
-$(document).on('click', '.plus-button', function(e){
-  e.preventDefault();
-  var id = $(this).id;
-
-  $.ajax({
-    type: 'POST',
-    url: 'up/',
-    data:{
-      place_id: $(this).parent().attr('id'),
-      csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-    },
-    success:function(){
-      console.log("place upvoted");
+        i --;
     }
-  })
-});
+  }
+  maxDistance = searchResults[i].distance;
+}
 
 
-///MODAL
-function initMapModal(placeId){
-  getPos = function () {
-           // var srchRadius= document.getElementById('rad').value*83;
-           console.log("getPos function called");
-
-           navigator.geolocation.getCurrentPosition(function (position) {
-            console.log("Successfully retrieved position: ", position);
-            var coords = position.coords;
-
-            var pyrmont = {
-              lat: coords.latitude, lng:  coords.longitude};
-
-              map = new google.maps.Map(document.getElementById('mapModal'), {
-                center: pyrmont,
-                zoom: 15
-              });
 
 
-              infowindow = new google.maps.InfoWindow();
-              var service = new google.maps.places.PlacesService(map);
 
 
-            }, function (error) {
-              console.log("Something went wrong retrieving position: ", error);
-              setTimeout(getPos, 5000);
-            });
-         }
-         getPos();
-       }
+function isIdInArray(array, item) {
+          for (var i = 0; i < array.length; i++) {
+            //if id in array => true
+            if (array[i][0] == item) {
+              return true; 
+            }
+          }
+          return false; 
+        }
 
 
-       $(document).on('shown.bs.modal', '.modal', function(e){ 
+function getSelectedList(){
+  $('.ajaxProgress').show();
+  $.ajax({
+    type: "GET",
+    url: 'getSelectedList/',
+    dataType: "json",
+    async: true,
+    data: {csrfmiddlewaretoken: '{{ csrf_token}}'},
+    success: function (json){ 
+              ///check if the div contains an element with this id. If yes, check if the nbr of votes is the same. If not update the nbr. 
+              ///If not append  
+              for(i = 0; i<json.message.length; i++){
+                var placeVotes = json.message[i][2];
+                var placeName= json.message[i][0];
+                var placeID = json.message[i][1];
 
-        initMapModal();
 
+                ///if place not in array, push it into array
+
+
+                if(isIdInArray(arrSelectedPlaces, placeID) == false){
+                  var arrTemp = [placeID, placeName];
+                  arrSelectedPlaces.push(arrTemp);
+
+                      console.log("adding new place"+placeName);
+                      const listElement = document.createElement("li");
+                      $(listElement).append(
+                         "&nbsp;<a href='#' class='flag-button'><span class='glyphicon glyphicon-flag'></span></a>"+
+                  "&nbsp;<a href='#' class='flag-button'><span class='glyphicon glyphicon-info-sign info-button' data-toggle='modal'></span></a>&nbsp;"
+                        );
+                      listElement.id = placeID+"voting";
+                      listElement.classList.add('place-list-item');
+
+                      const votesDisplay = document.createElement("span");
+                      votesDisplay.id = placeID+"votes";
+                      votesDisplay.classList.add('place-list-votes', 'align-right');
+                      const content = document.createTextNode(placeVotes);
+                      votesDisplay.appendChild(content);
+
+                      const placeNameNode = document.createTextNode(placeName);
+
+                      listElement.appendChild(placeNameNode);
+                      $(listElement).append("<a class='minus-button align-right enabled-button' href='#'><span class='glyphicon glyphicon-thumbs-down' aria-hidden='true'></span></a>&nbsp;");          
+                      listElement.appendChild(votesDisplay);
+                      $(listElement).append("<a class='plus-button align-right enabled-button' href='#'><span class='glyphicon glyphicon-thumbs-up' aria-hidden='false'></span>&nbsp;</a>&nbsp;");
+
+                      $('#selectedPlacesList').append(listElement);
+
+                    ///find place by place id and create marker using that place
+                    var place = searchResults.find(x => x.place_id == placeID);
+                    console.log("Found place by ID: " + placeID +"  "+ place.name);
+
+                    ///if place in the searchResults list, remove from there and delete marker
+                    if(place.onSrchList =='Y'){
+                      removeMarker(place);
+                      document.getElementById(placeID).remove();
+                    }
+
+
+                    createMarker(place);
+
+
+                  }else{
+                    var displayedVotes = document.getElementById(placeID+"votes");
+                  //  console.log($(displayedVotes).text());
+                    if ($(displayedVotes).text() != placeVotes){
+                      console.log($(displayedVotes).text()+placeVotes+"updating" +i);
+                      $(displayedVotes).text(placeVotes) ;
+                    }
+                  }       
+              }
+          }
       });
+}
 
 
 
 
+function getWinner(){
 
-       var placeLinks= function(place){
-        var place_id = place.place_id;
+  $('.ajaxProgress').show();
+  $.ajax({
+    type: "GET",
+    url: 'getWinner/',
+    dataType: "json",
+    async: true,
+    data: {csrfmiddlewaretoken: '{{ csrf_token}}'},
+    success: function (json){ 
+          console.log("Get winner was fucking called");
 
-        const span = document.createElement("span");
+          clearVotes();
+          clearSrchResults();
 
-        const infobutton =document.createElement('button');
-        inforbutton.classList.add('info-button glyphicon glyphicon-info-sign');
+          getPlaceDetails(json.message);
 
-        const content = document.createTextNode(placeVotes);
+          document.getElementById('winner').innerHTML= "The masses have spoken! </br> We're going to... </br> <span id='restaurant-name'>"+ json.message +"</span>";
+          document.getElementById('winner').classList.add('winnerDisplayed');
+          document.getElementById('voteHere-text').innerHTML = " - Winner - ";
+          document.getElementById("p-rad").style.visibility = "hidden";
+          document.getElementById('voteHere-text').innerHTML = " - Winner - ";
 
-
-        listElement.appendChild(placeNameNode);
-        listElement.appendChild(votesDisplay);
-
-      };
-
-
-      $(document).on('click', '.info-button',function(e){
-        $('#myModal').modal('show');
+          }
       });
+}
+
+
+
+function clearVotes(){
+  var myNode = document.getElementById("selectedPlacesList");
+  while (myNode.firstChild) {
+    myNode.removeChild(myNode.firstChild);
+  }
+}
+
+function clearSrchResults(){
+    var myNode = document.getElementById("srchResultsList");
+  while (myNode.firstChild) {
+    myNode.removeChild(myNode.firstChild);
+  }
+}
+
+function getPlaceDetails(place){
+  var request = {
+  placeId: '05914061837087ecd0d03fdda38c5d41fbd698d6'
+};
+
+    service = new google.maps.places.PlacesService(map);
+    service.getDetails(request, populateWinner);
+
+    function populateWinner(place, status) {
+  if (status == google.maps.places.PlacesServiceStatus.OK) {
+    createMarker(place);
+    var placeName = "TESTESTETSTESTESTSTST";
+
+    const listElement = document.getElementById("results-list-container");
+
+    const placeNameNode = document.createTextNode(placeName);
+    listElement.appendChild(placeNameNode);
+
+  }else{
+    console.log("Google did not return place details, status"+status);
+  }
+
+}
+}
+
+
+function populateWinner(place, status) {
+  if (status == google.maps.places.PlacesServiceStatus.OK) {
+    createMarker(place);
+    var placeName = "TESTESTETSTESTESTSTST";
+
+    const listElement = document.getElementById("results-list-container");
+
+    const placeNameNode = document.createTextNode(placeName);
+    listElement.appendChild(placeNameNode);
+
+  }else{
+    console.log("Google did not return place details, status"+status);
+  }
+
+}
+
+
+//getSelectedList();
 
 
 
