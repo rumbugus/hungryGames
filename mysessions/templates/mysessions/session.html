@@ -131,7 +131,7 @@
 
   </div>
   <script async defer>
-
+////to change: if time delta > 0 then go to function myTimer; else just keep time delta at 0
   var timeDelta ={{ time_remaining }}; //in seconds
   var d = new Date();
   var loadTime = d.getTime()/1000; //time now in seconds
@@ -140,7 +140,7 @@
 
             
   function myTimer(){
-    
+    console.log("timer started");
     var d2 = new Date();
     var now = d2.getTime()/1000;
     timeDelta = endTime - now;

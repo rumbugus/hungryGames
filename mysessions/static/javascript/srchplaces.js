@@ -85,8 +85,7 @@ function callback(results, status, pagination) {
                    console.log("NEXTPAGE NEXTPAGE NEXTPAGE NEXTPAGE");
                  }else{
                     console.log("calling getSelectedList for the first time");
-                    
-                      
+                                   
                       if(timeDelta > 0){
                         var selectedVar = getSelectedList();
                         populateSrchList();
@@ -115,7 +114,6 @@ function createMarker(place) {
             if(isIdInArray(arrSelectedPlaces, place.place_id) == true){
               marker.setIcon('http://maps.google.com/mapfiles/kml/paddle/grn-stars.png');
             }
-
 
               gMarkers.push(marker);
               place.markerIndex = gMarkers.length -1;

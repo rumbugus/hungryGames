@@ -10,7 +10,7 @@ body{
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     font:bold;
-    max-width:560px;
+    max-width:600px;
     position: relative;
     display: block;
     padding: .4em .4em .3em .6em;
@@ -20,6 +20,13 @@ body{
     text-decoration: none;
     border-radius: .3em;
     transition: all .3s ease-out;  
+    margin-left: 60px;
+}
+
+
+#containerSrchResults .place-list-item{
+    border-top:solid #3f4d3f;
+    margin-left: 50px;
 }
 
 .place-list-item:hover{
@@ -55,8 +62,7 @@ body{
 }
 
 #containerSelectedPlaces{
-    background-color: #1e3231;
-    
+    background-color: #1e3231; 
     border-radius: .3em;
 }
 
@@ -73,14 +79,11 @@ body{
     height: 511px;
 }
 
-#containerSrchResults .place-list-item{
-    border-top:solid #3f4d3f;
 
-}
 
 #results-list-container{
-    overflow: auto;
-    height: 41a0px;
+    overflow: scroll;
+    height: 410px;
     position:relative
 }
 
@@ -251,7 +254,7 @@ margin-left: 100px;
     font-size: 20px;
     float: right;
     margin-right: 30px;
-    margin-top:20px;
+    margin-top:25px;
     position:relative;
 }
 
