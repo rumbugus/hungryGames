@@ -81,12 +81,8 @@ def addPlace(request, session_id):
 
 def downvote(request, session_id):
 	if request.method == 'POST':
-		place_id = request.POST['place_id']
-		real_session_id = Session.objects.get(pk=session_id)
-		place = SelectedPlace.objects.get(session_id_id='1', place_id="ChIJoYK-GnYZyUwRLdfmsIrFRWE") 
+		place = get_object_or_404(SelectedPlace, place_id=request.POST['place_id'], session_id=session_id) 
 		user = request.user 
-
-		place.save()
 		place.downvote(user, session_id)
 
 	return HttpResponse()
@@ -94,11 +90,8 @@ def downvote(request, session_id):
 
 def upvote(request, session_id):
 	if request.method == 'POST':
-
 		place = get_object_or_404(SelectedPlace, place_id=request.POST['place_id'], session_id=session_id) 
-
 		user = request.user 
-
 		place.upvote(user, session_id)
 
 	return HttpResponse()

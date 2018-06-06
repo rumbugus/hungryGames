@@ -10,17 +10,16 @@ body{
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     font:bold;
-    max-width:600px;
+    max-width:560px;
     position: relative;
     display: block;
-    padding: .4em .4em .4em .6em;
+    padding: .4em .4em .3em .6em;
     border-top:solid #1e3231;
     background: #4e6e5d;
     color: #e4e2c8;
     text-decoration: none;
     border-radius: .3em;
     transition: all .3s ease-out;  
-    margin:auto; 
 }
 
 .place-list-item:hover{
@@ -48,44 +47,45 @@ body{
     margin-bottom: 40px;
 }
 #main-container{
-    height: 1300px;
-    padding: 20px;
-    margin-top:10px;   
+    height: 1300px;   
 }
 
 #map-container{
-    width:800px;
+ 
 }
 
 #containerSelectedPlaces{
     background-color: #1e3231;
-    margin-left:60px;
-    margin-right:20px; 
+    
     border-radius: .3em;
 }
 
 #selected-places{
     overflow: auto;
-    min-height: 300px;
-    max-height: 500px;
+    height: 300px;
     position:relative
 }
 
 #containerSrchResults{
     margin-top: 20px;
-    margin-right:20px;
-    margin-left:60px;
     background-color:#3f4d3f;
     border-radius: .3em;
+    height: 511px;
 }
+
+#containerSrchResults .place-list-item{
+    border-top:solid #3f4d3f;
+
+}
+
 #results-list-container{
     overflow: auto;
-    max-height: 546px;
+    height: 41a0px;
     position:relative
 }
 
 #left-boxes{
-    max-height: 800px;
+    max-height: 1000px;
     position:relative
 }
 
@@ -105,6 +105,7 @@ body{
 #radius{
     max-width:35px;
     padding:0px;
+    color:black;
 }
 
 
@@ -134,7 +135,7 @@ body{
 
 
 .p-rad{
-    margin-left: 120px;
+    margin-left: 10px;
     color:white;
 }
 
@@ -160,6 +161,8 @@ body{
     margin:60px;
 }
 
+
+
 #restaurant-name{
     font-family: 'Allan';
     font-size: 2.4em;
@@ -170,4 +173,125 @@ body{
 
 #modal-dialog{
     width:1000px;
+}
+
+
+
+#winner-info{
+    color:#FFEFD7;
+    margin-left:30px;
+    position:relative;
+}
+
+
+#details-name{
+    font-family: 'Allan';
+    font-size: 2.4em;
+    color:#FFEFD7;
+
+}
+
+
+
+.stars-outer {
+  display: inline-block;
+  position: relative;
+  font-family: FontAwesome;
+}
+ 
+.stars-outer::before {
+  content: "\f006 \f006 \f006 \f006 \f006";
+}
+ 
+.stars-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0%;
+}
+ 
+.stars-inner::before {
+  content: "\f005 \f005 \f005 \f005 \f005";
+  color: #f8ce0b;
+}
+
+
+
+.item{
+    margin-top: 30px;
+margin-left: 100px;
+  height:200px; 
+  width:600px;
+}
+
+
+.middle{
+    max-width:50px;
+}
+
+
+.carousel-control.left, .carousel-control.right {
+   background-image:none !important;
+   filter:none !important;
+}
+
+#commentsCaroussel{
+    text-align: left;
+}
+
+#details-name{
+    float:left;
+    position:relative;
+}
+
+#details-isopen{
+    font-family:'Alfa Slab One';
+    font-size: 20px;
+    float: right;
+    margin-right: 30px;
+    margin-top:20px;
+    position:relative;
+}
+
+
+#details-phone{
+    text-align: center;
+    position: relative;   
+    font-size: 30px;
+}
+
+#details-website{
+    color: #98D2EB;
+}
+
+
+#name-open{
+    margin-top: 20px;
+    overflow: hidden;
+}
+.details-2{
+    position:relative;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.stars-outer{
+    font-size: 20px;
+}
+
+.comment-time{
+    font-family:'Allan';
+    font-weight: bold;
+    color:#FFEFD7;
+}
+
+.comment-name{
+    color: #C5D86D;
+    font-family: 
+}
+
+.comment-text{
+    color:#FFEFD7;
 }

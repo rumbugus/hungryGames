@@ -1,3 +1,5 @@
+
+
   var map;
   var mapModal;
   var infowindow;
@@ -8,11 +10,10 @@
   var gMarkers = [];
 
   var coords;
+  var testPlace;
 
-
-var arrSelectedPlaces =[]; /// contains place_id, place_name, place coordinates 
-var winner;
-
+  var arrSelectedPlaces =[]; /// contains place_id, place_name, place coordinates 
+  var winner;
 
 
   function initMap(){
@@ -102,9 +103,9 @@ function callback(results, status, pagination) {
 ////if place doesn't have a marker, create Marker,add to marker array
 function createMarker(place) {
 
-          if(place.markerIndex == -1){
+          if(place.markerIndex == -1 || place.markerIndex == undefined){
             var marker = null;
-
+            console.log("create marker called");
             var placeLoc = place.geometry.location;
             var marker = new google.maps.Marker({
               map: map,
@@ -333,11 +334,10 @@ function getWinner(){
 
           getPlaceDetails(json.message);
 
-          document.getElementById('winner').innerHTML= "The masses have spoken! </br> We're going to... </br> <span id='restaurant-name'>"+ json.message +"</span>";
           document.getElementById('winner').classList.add('winnerDisplayed');
           document.getElementById('voteHere-text').innerHTML = " - Winner - ";
           document.getElementById("p-rad").style.visibility = "hidden";
-          document.getElementById('voteHere-text').innerHTML = " - Winner - ";
+
 
           }
       });
@@ -354,51 +354,107 @@ function clearVotes(){
 
 function clearSrchResults(){
     var myNode = document.getElementById("srchResultsList");
-  while (myNode.firstChild) {
+
+    if(myNode != null){
+        while (myNode.firstChild) {
     myNode.removeChild(myNode.firstChild);
   }
+    }
+
 }
 
 function getPlaceDetails(place){
+  console.log("get place dtails");
   var request = {
-  placeId: '05914061837087ecd0d03fdda38c5d41fbd698d6'
+  placeId: place
 };
 
     service = new google.maps.places.PlacesService(map);
     service.getDetails(request, populateWinner);
 
+
     function populateWinner(place, status) {
+      console.log("populate winner");
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     createMarker(place);
-    var placeName = "TESTESTETSTESTESTSTST";
 
-    const listElement = document.getElementById("results-list-container");
+    testPlace = place;
+    console.log (place);
 
-    const placeNameNode = document.createTextNode(placeName);
-    listElement.appendChild(placeNameNode);
+    document.getElementById('winner').innerHTML= "The masses have spoken! </br> We're going to... </br> <span id='restaurant-name'>"+ place.name +"</span>";
+   
 
+document.getElementById('containerSrchResults').innerHTML= 
+"<div id='winner-info'>"+
+"<div id='name-open'>"+
+"<h2 id='details-name'>"+place.name+"</h2>"+
+"<h4 id='details-isopen'>"+isOpen(place)+"</h4>"+
+"</div><div class='details-2'>"+
+"<a id='details-website' href='"+place.website+"'>"+place.website+"</a>"+
+"<p id='details-description'>"+place.formatted_phone_number+"</p>"+
+"<p id='details-address'>"+place.formatted_address+"</p>"+
+"<div class='stars-outer'><div class='stars-inner' id='stars-inner'></div></div></div>"+
+"</div>"+
+commentsCarousel(place)
+;
+
+
+setRatingStars(place);
+    
   }else{
     console.log("Google did not return place details, status"+status);
   }
 
+} 
 }
+
+
+var isOpen = function(place){
+  if(place.opening_hours.open_now=true){
+    return "<span style='color:#C5D86D'>Open</span>";
+  }
+  return "<span style='color:red'>Closed</span>";
 }
 
 
-function populateWinner(place, status) {
-  if (status == google.maps.places.PlacesServiceStatus.OK) {
-    createMarker(place);
-    var placeName = "TESTESTETSTESTESTSTST";
+function setRatingStars(place){
+  var rating= place.rating;
+  $( "#stars-inner" ).css("width", (rating/5)*100+"%");
+}
 
-    const listElement = document.getElementById("results-list-container");
 
-    const placeNameNode = document.createTextNode(placeName);
-    listElement.appendChild(placeNameNode);
+var commentsCarousel = function(place){
 
-  }else{
-    console.log("Google did not return place details, status"+status);
+  var htmlStr = "<div id='commentsCarousel' class='carousel slide' data-ride='carousel'>";
+  var htmlList = "<ol class='carousel-indicators'><li data-target='#commentsCarousel' data-slide-to='0' class='active'></li>";
+  var htmlItems = "<div class='carousel-inner'>";
+  var htmlControls = "<a class='left carousel-control' href='#commentsCarousel' data-slide='prev'><span class='glyphicon glyphicon-chevron-left'></span><span class='sr-only'>Previous</span></a><a class='right carousel-control' href='#commentsCarousel' data-slide='next'><span class='glyphicon glyphicon-chevron-right'></span><span class='sr-only'>Next</span></a></div>";
+
+  if(place.reviews.length >0){
+      for(var i =0; i<place.reviews.length; i++){
+
+        var active ='';
+        if(i==0){active = "active"}
+        var name = place.reviews[i].author_name;
+        var rating = place.reviews[i].rating;
+        var timeAgo = place.reviews[i].relative_time_description;
+        var text = place.reviews[i].text;
+
+        if(text.length > 350){
+          text = text.substring(0,343) +" (...)";
+        }
+
+        console.log(name+rating+timeAgo+text);
+
+
+        htmlList += "<li data-target='#commentsCarousel' data-slide-to='"+i+"'></li>";
+        htmlItems += "<div class='comment item "+active+"'>"+"<span class='comment-name'>"+name+"</span></br><span class='comment-time'>"+timeAgo+"</span></br></br><span class='comment-text'>"+text+"</span></div>";
+      }
+      htmlList += "</ol>";
+      htmlItems += "</div>";
   }
 
+  return htmlStr + htmlStr + htmlList + htmlItems + htmlControls;
 }
 
 
